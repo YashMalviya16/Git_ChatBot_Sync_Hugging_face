@@ -1,0 +1,23 @@
+name: Sync with Hugging Face Space
+
+on:
+  push:
+    branches:
+      - main  # You can specify the branch you want to sync
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Install Git
+      run: sudo apt-get install git-lfs
+
+    - name: Sync Hugging Face Space
+      run: |
+        git lfs install
+        git push https://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@huggingface.co/spaces/YashMalviya16/Mlops.git
+      env:
+        HUGGINGFACE_TOKEN: ${{ secrets.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 }}
