@@ -18,6 +18,6 @@ jobs:
     - name: Sync Hugging Face Space
       run: |
         git lfs install
-        git push https://$MLOPSECRET@huggingface.co/spaces/YashMalviya16/Mlops.git
+        git push https://$MLOPSECRET@huggingface.co/spaces/ymalviya@wpi.edu/Mlops.git
       env:
         HUGGINGFACE_TOKEN: ${{ secrets.MLOPSECRET }}
