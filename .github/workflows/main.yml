@@ -1,23 +1,20 @@
-name: Sync with Hugging Face Space
-
+name: Sync to Hugging Face hub
 on:
   push:
-    branches:
-      - main  # You can specify the branch you want to sync
+    branches: [main]
+
+  # to run this workflow manually from the Actions tab
+  workflow_dispatch:
 
 jobs:
-  sync:
+  sync-to-hub:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
-    - name: Install Git
-      run: sudo apt-get install git-lfs
-
-    - name: Sync Hugging Face Space
-      run: |
-        git lfs install
-        git push https://$MLOPSECRET@huggingface.co/spaces/ymalviya@wpi.edu/Mlops.git
-      env:
-        HUGGINGFACE_TOKEN: ${{ secrets.MLOPSECRET }}
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          lfs: true
+      - name: Push to hub
+        env:
+          HF_TOKEN: ${{ secrets.MLOPSECRET }}
+        run: git push https://YashMalviya16:$MLOPSECRET@huggingface.co/spaces/ymalviya@wpi.edu/Mlops
