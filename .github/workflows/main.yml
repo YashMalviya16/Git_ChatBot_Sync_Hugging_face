@@ -17,4 +17,4 @@ jobs:
       - name: Push to hub
         env:
           HF_TOKEN: ${{ secrets.MLOPSECRET }}
-        run: git push https://YashMalviya16:$MLOPSECRET@huggingface.co/spaces/ymalviya@wpi.edu/Mlops
+        run: git remote set-url origin https://YashMalviya16:$MLOPSECRET@huggingface.co/spaces/YashMalviya16/Mlops
