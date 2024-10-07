@@ -37,6 +37,7 @@ else
 fi
 
 # Step 3: Set permissions for the key (Fix permissions)
+chmod 600 "${STUDENT_ADMIN_KEY_PATH}/student-admin_key"  # Fix for too-open permissions
 cd $TMP_DIR
 chmod 600 student-admin_key
 chmod 644 student-admin_key.pub
@@ -64,8 +65,7 @@ ls -l "${SSH_PATH}.ssh/authorized_keys"
 cat "${SSH_PATH}.ssh/authorized_keys"
 
 # Step 8: Copy the authorized_keys to the remote server
-chmod 600 "${STUDENT_ADMIN_KEY_PATH}/student-admin_key"
-scp -i "${STUDENT_ADMIN_KEY_PATH}/student-admin_key" -P ${PORT} -o StrictHostKeyChecking=no authorized_keys student-admin@${MACHINE}:~/.ssh/
+scp -i "${TMP_DIR}/student-admin_key" -P ${PORT} -o StrictHostKeyChecking=no authorized_keys student-admin@${MACHINE}:~/.ssh/
 
 # Step 9: Add the key to ssh-agent
 eval "$(ssh-agent -s)"
@@ -77,17 +77,17 @@ else
 fi
 
 # Step 10: Verify the authorized_keys on the server
-ssh -i "${STUDENT_ADMIN_KEY_PATH}/student-admin_key" -p ${PORT} -o StrictHostKeyChecking=no student-admin@${MACHINE} "cat ~/.ssh/authorized_keys"
+ssh -i "${TMP_DIR}/student-admin_key" -p ${PORT} -o StrictHostKeyChecking=no student-admin@${MACHINE} "cat ~/.ssh/authorized_keys"
 
 # Step 11: Check if the project folder exists on the server, create it if it doesn't
-ssh -i "${STUDENT_ADMIN_KEY_PATH}/student-admin_key" -p ${PORT} -o StrictHostKeyChecking=no student-admin@${MACHINE} "mkdir -p ${REMOTE_PROJECT_PATH}"
+ssh -i "${TMP_DIR}/student-admin_key" -p ${PORT} -o StrictHostKeyChecking=no student-admin@${MACHINE} "mkdir -p ${REMOTE_PROJECT_PATH}"
 
 # Step 12: Clone the repository locally
 git clone ${REPO_URL}
 
 # Step 13: Copy the repository to the project folder on the server
-scp -i "${STUDENT_ADMIN_KEY_PATH}/student-admin_key" -P ${PORT} -o StrictHostKeyChecking=no -r ${PROJECT_DIR} student-admin@${MACHINE}:${REMOTE_PROJECT_PATH}/
-ssh -i "${STUDENT_ADMIN_KEY_PATH}/student-admin_key" -p ${PORT} -o StrictHostKeyChecking=no student-admin@${MACHINE} "ls -al ${REMOTE_PROJECT_PATH}/${PROJECT_DIR} || echo 'Directory not found'"
+scp -i "${TMP_DIR}/student-admin_key" -P ${PORT} -o StrictHostKeyChecking=no -r ${PROJECT_DIR} student-admin@${MACHINE}:${REMOTE_PROJECT_PATH}/
+ssh -i "${TMP_DIR}/student-admin_key" -p ${PORT} -o StrictHostKeyChecking=no student-admin@${MACHINE} "ls -al ${REMOTE_PROJECT_PATH}/${PROJECT_DIR} || echo 'Directory not found'"
 
 # Final message
 echo "Deployment completed successfully!"
