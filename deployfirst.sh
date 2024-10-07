@@ -7,7 +7,7 @@ STUDENT_ADMIN_KEY_PATH="/mnt/c/Users/yashm/Desktop/MLOPS-cs2/Git_ChatBot_Sync_Hu
 SSH_PATH="/mnt/c/Users/yashm/"
 REPO_URL="https://github.com/YashMalviya16/Git_ChatBot_Sync_Hugging_face.git"
 PROJECT_DIR="Git_ChatBot_Sync_Hugging_face"
-TMP_DIR="C:/Users/yashm/Desktop/MLOPS-cs2/Git_ChatBot_Sync_Hugging_face/tmp"
+TMP_DIR="/mnt/c/Users/yashm/Desktop/MLOPS-cs2/Git_ChatBot_Sync_Hugging_face/tmp"
 REMOTE_PROJECT_PATH="~/project1"
 
 # Step 0: Check if student-admin_key exists
