@@ -28,7 +28,7 @@ echo "Attempting to copy keys:"
 cp "${STUDENT_ADMIN_KEY_PATH}/student-admin_key" $TMP_DIR
 cp "${STUDENT_ADMIN_KEY_PATH}/student-admin_key.pub" $TMP_DIR
 
-# Step 3: Set permissions for the key
+# Step 3: Set permissions for the key (Fix permissions)
 cd $TMP_DIR
 chmod 600 student-admin_key
 chmod 644 student-admin_key.pub
@@ -38,21 +38,25 @@ echo "Generating a new SSH key..."
 rm -f my_key*
 ssh-keygen -f my_key -t ed25519 -N "team8gry"
 
-# Step 5: Update authorized_keys locally
+# Step 5: Set correct permissions for new keys (Fix permissions)
+chmod 600 my_key
+chmod 644 my_key.pub
+
+# Step 6: Update authorized_keys locally
 cat my_key.pub > "${SSH_PATH}.ssh/authorized_keys"
 cat student-admin_key.pub >> "${SSH_PATH}.ssh/authorized_keys"
 chmod 600 "${SSH_PATH}.ssh/authorized_keys"
 
-# Step 6: Display authorized_keys for verification
+# Step 7: Display authorized_keys for verification
 echo "Verifying local authorized_keys file:"
 ls -l "${SSH_PATH}.ssh/authorized_keys"
 cat "${SSH_PATH}.ssh/authorized_keys"
 
-# Step 7: Copy the authorized_keys to the server
+# Step 8: Copy the authorized_keys to the server
 echo "Copying authorized_keys to the remote server..."
 scp -i student-admin_key -P ${PORT} -o StrictHostKeyChecking=no authorized_keys student-admin@${MACHINE}:~/.ssh/
 
-# Step 8: Add the key to ssh-agent
+# Step 9: Add the key to ssh-agent
 echo "Adding key to ssh-agent..."
 eval "$(ssh-agent -s)"
 ssh-add my_key
@@ -60,23 +64,23 @@ ssh-add my_key
 echo "SSH Agent status:"
 ssh-add -l
 
-# Step 9: Verify the key file on the server
+# Step 10: Verify the key file on the server
 echo "Verifying the authorized_keys on the server..."
 ssh -i student-admin_key -p ${PORT} -o StrictHostKeyChecking=no student-admin@${MACHINE} "cat ~/.ssh/authorized_keys"
 
-# Step 10: Check if the project folder exists on the server, create it if it doesn't
+# Step 11: Check if the project folder exists on the server, create it if it doesn't
 ssh -i student-admin_key -p ${PORT} -o StrictHostKeyChecking=no student-admin@${MACHINE} "echo 'SSH connection works'"
 echo "Checking if the project directory exists on the server..."
 ssh -i student-admin_key -p ${PORT} -o StrictHostKeyChecking=no student-admin@${MACHINE} "mkdir -p ${REMOTE_PROJECT_PATH}"
 
-# Step 11: Check if connection works with my_key
+# Step 12: Check if connection works with my_key
 ssh -i ${TMP_DIR}/my_key -p ${PORT} -o StrictHostKeyChecking=no student-admin@${MACHINE} "echo 'SSH connection works with my_key'"
 
-# Step 12: Clone the repository locally
+# Step 13: Clone the repository locally
 echo "Cloning the repository to local machine..."
 git clone ${REPO_URL}
 
-# Step 13: Copy the repository to the project folder on the server
+# Step 14: Copy the repository to the project folder on the server
 echo "Copying the project files to the server project directory..."
 scp -i student-admin_key -P ${PORT} -o StrictHostKeyChecking=no -r ${PROJECT_DIR} student-admin@${MACHINE}:${REMOTE_PROJECT_PATH}/
 ssh -i student-admin_key -p ${PORT} -o StrictHostKeyChecking=no student-admin@${MACHINE} "ls -al ${REMOTE_PROJECT_PATH}/${PROJECT_DIR} || echo 'Directory not found'"
