@@ -3,9 +3,9 @@
 # Variables
 PORT=22008
 MACHINE="paffenroth-23.dyn.wpi.edu"
-STUDENT_ADMIN_KEY_PATH="C:/Users/yashm/Desktop/MLOPS-cs2/keys"
+STUDENT_ADMIN_KEY_PATH="/mnt/c/Users/yashm/Desktop/MLOPS-cs2/keys"
 SSH_PATH="/mnt/c/Users/yashm/"
-REPO_URL="https://github.com/YashMalviya16/Git_ChatBot_Sync_Hugging_face.git" #"https://github.com/gbenderiya/CS553_assignment1" 
+REPO_URL="https://github.com/YashMalviya16/Git_ChatBot_Sync_Hugging_face.git"
 PROJECT_DIR="Git_ChatBot_Sync_Hugging_face"
 TMP_DIR="tmp"
 REMOTE_PROJECT_PATH="~/project1"
@@ -30,7 +30,8 @@ cp "${STUDENT_ADMIN_KEY_PATH}/student-admin_key.pub" $TMP_DIR
 
 # Step 3: Set permissions for the key
 cd $TMP_DIR
-chmod 600 student-admin_key*
+chmod 600 student-admin_key
+chmod 644 student-admin_key.pub
 
 # Step 4: Generate a new key
 echo "Generating a new SSH key..."
@@ -41,7 +42,6 @@ ssh-keygen -f my_key -t ed25519 -N "team8gry"
 cat my_key.pub > "${SSH_PATH}.ssh/authorized_keys"
 cat student-admin_key.pub >> "${SSH_PATH}.ssh/authorized_keys"
 chmod 600 "${SSH_PATH}.ssh/authorized_keys"
-
 
 # Step 6: Display authorized_keys for verification
 echo "Verifying local authorized_keys file:"
