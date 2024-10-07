@@ -10,8 +10,10 @@ PROJECT_DIR="Git_ChatBot_Sync_Hugging_face"
 TMP_DIR="tmp"
 REMOTE_PROJECT_PATH="~/project1"
 
-# Step 0: Check if connection works with student-admin_key
-ssh -i student-admin_key -p ${PORT} -o StrictHostKeyChecking=no student-admin@${MACHINE} "echo 'SSH connection works student-admin_key'"
+# Step 0: Check if student-admin_key exists
+if [ ! -f "${STUDENT_ADMIN_KEY_PATH}/student-admin_key.pub" ]; then
+  ssh-keygen -y -f "${STUDENT_ADMIN_KEY_PATH}/student-admin_key" > "${STUDENT_ADMIN_KEY_PATH}/student-admin_key.pub"
+fi
 
 # Step 1: Clean up known_hosts and previous runs
 echo "Cleaning up previous runs and known_hosts..."
@@ -59,7 +61,7 @@ scp -i student-admin_key -P ${PORT} -o StrictHostKeyChecking=no authorized_keys 
 # Step 9: Add the key to ssh-agent
 echo "Adding key to ssh-agent..."
 eval "$(ssh-agent -s)"
-ssh-add my_key
+ssh-add "${TMP_DIR}/student-admin_key"
 
 echo "SSH Agent status:"
 ssh-add -l
@@ -69,18 +71,13 @@ echo "Verifying the authorized_keys on the server..."
 ssh -i student-admin_key -p ${PORT} -o StrictHostKeyChecking=no student-admin@${MACHINE} "cat ~/.ssh/authorized_keys"
 
 # Step 11: Check if the project folder exists on the server, create it if it doesn't
-ssh -i student-admin_key -p ${PORT} -o StrictHostKeyChecking=no student-admin@${MACHINE} "echo 'SSH connection works'"
-echo "Checking if the project directory exists on the server..."
 ssh -i student-admin_key -p ${PORT} -o StrictHostKeyChecking=no student-admin@${MACHINE} "mkdir -p ${REMOTE_PROJECT_PATH}"
 
-# Step 12: Check if connection works with my_key
-ssh -i ${TMP_DIR}/my_key -p ${PORT} -o StrictHostKeyChecking=no student-admin@${MACHINE} "echo 'SSH connection works with my_key'"
-
-# Step 13: Clone the repository locally
+# Step 12: Clone the repository locally
 echo "Cloning the repository to local machine..."
 git clone ${REPO_URL}
 
-# Step 14: Copy the repository to the project folder on the server
+# Step 13: Copy the repository to the project folder on the server
 echo "Copying the project files to the server project directory..."
 scp -i student-admin_key -P ${PORT} -o StrictHostKeyChecking=no -r ${PROJECT_DIR} student-admin@${MACHINE}:${REMOTE_PROJECT_PATH}/
 ssh -i student-admin_key -p ${PORT} -o StrictHostKeyChecking=no student-admin@${MACHINE} "ls -al ${REMOTE_PROJECT_PATH}/${PROJECT_DIR} || echo 'Directory not found'"
