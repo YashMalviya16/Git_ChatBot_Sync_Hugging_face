@@ -1,72 +1,85 @@
-#! /bin/bash
+#!/bin/bash
 
+# Variables
 PORT=22008
-MACHINE=paffenroth-23.dyn.wpi.edu
-STUDENT_ADMIN_KEY_PATH=/mnt/c/Users/yashm/Desktop/MLOPS-cs2/Git_ChatBot_Sync_Hugging_face
+MACHINE="paffenroth-23.dyn.wpi.edu"
+STUDENT_ADMIN_KEY_PATH="/mnt/c/Users/yashm/desktop/MLOPS-cs2/Git_ChatBot_Sync_Hugging_face/keys"
+SSH_PATH="/mnt/c/Users/yashm/"
+REPO_URL="https://github.com/YashMalviya16/Git_ChatBot_Sync_Hugging_face.git" #"https://github.com/gbenderiya/CS553_assignment1" 
+PROJECT_DIR="Git_ChatBot_Sync_Hugging_face"
+TMP_DIR="tmp"
+REMOTE_PROJECT_PATH="~/project1"
 
-# Clean up from previous runs
-ssh-keygen -f "/mnt/c/users/yashm/.ssh/known_hosts" -R "[paffenroth-23.dyn.wpi.edu]:22008"
-rm -rf tmp
+# Step 0: Check if connection works with student-admin_key
+ssh -i student-admin_key -p ${PORT} -o StrictHostKeyChecking=no student-admin@${MACHINE} "echo 'SSH connection works student-admin_key'"
 
-# Create a temporary directory
-mkdir tmp
+# Step 1: Clean up known_hosts and previous runs
+echo "Cleaning up previous runs and known_hosts..."
+ssh-keygen -f "${SSH_PATH}.ssh/known_hosts" -R "[${MACHINE}]:${PORT}"
+rm -rf $TMP_DIR
 
-# copy the key to the temporary directory
-cp ${STUDENT_ADMIN_KEY_PATH}/student-admin_key* tmp
+# Step 2: Set up temporary directory and copy keys
+echo "Setting up temporary directory and copying keys..."
+mkdir $TMP_DIR
+echo "Listing keys directory:"
+ls ${STUDENT_ADMIN_KEY_PATH}
 
-# Change to the temporary directory
-cd tmp
+echo "Attempting to copy keys:"
+cp "${STUDENT_ADMIN_KEY_PATH}/student-admin_key" $TMP_DIR
+cp "${STUDENT_ADMIN_KEY_PATH}/student-admin_key.pub" $TMP_DIR
 
-# Set the permissions of the key
+# Step 3: Set permissions for the key
+cd $TMP_DIR
 chmod 600 student-admin_key*
 
-# Create a unique key
-rm -f mykey*
-ssh-keygen -f mykey -t ed25519 -N "careful"
+# Step 4: Generate a new key
+echo "Generating a new SSH key..."
+rm -f my_key*
+ssh-keygen -f my_key -t ed25519 -N "team8gry"
 
-# Insert the key into the authorized_keys file on the server
-# One > creates
-cat mykey.pub > authorized_keys
-# two >> appends
-# Remove to lock down machine
-#cat student-admin_key.pub >> authorized_keys
+# Step 5: Update authorized_keys locally
+cat my_key.pub > "${SSH_PATH}.ssh/authorized_keys"
+cat student-admin_key.pub >> "${SSH_PATH}.ssh/authorized_keys"
+chmod 600 "${SSH_PATH}.ssh/authorized_keys"
 
-chmod 600 authorized_keys
 
-echo "checking that the authorized_keys file is correct"
-ls -l authorized_keys
-cat authorized_keys
+# Step 6: Display authorized_keys for verification
+echo "Verifying local authorized_keys file:"
+ls -l "${SSH_PATH}.ssh/authorized_keys"
+cat "${SSH_PATH}.ssh/authorized_keys"
 
-# Copy the authorized_keys file to the server
+# Step 7: Copy the authorized_keys to the server
+echo "Copying authorized_keys to the remote server..."
 scp -i student-admin_key -P ${PORT} -o StrictHostKeyChecking=no authorized_keys student-admin@${MACHINE}:~/.ssh/
 
-# Add the key to the ssh-agent
+# Step 8: Add the key to ssh-agent
+echo "Adding key to ssh-agent..."
 eval "$(ssh-agent -s)"
-ssh-add mykey
+ssh-add my_key
 
-# Check the key file on the server
-echo "checking that the authorized_keys file is correct"
-ssh -p ${PORT} -o StrictHostKeyChecking=no student-admin@${MACHINE} "cat ~/.ssh/authorized_keys"
+echo "SSH Agent status:"
+ssh-add -l
 
-# clone the repo
-git clone https://github.com/YashMalviya16/Git_ChatBot_Sync_Hugging_face
+# Step 9: Verify the key file on the server
+echo "Verifying the authorized_keys on the server..."
+ssh -i student-admin_key -p ${PORT} -o StrictHostKeyChecking=no student-admin@${MACHINE} "cat ~/.ssh/authorized_keys"
 
-# Copy the files to the server
-scp -P ${PORT} -o StrictHostKeyChecking=no -r Git_ChatBot_Sync_Hugging_face student-admin@${MACHINE}:~/
+# Step 10: Check if the project folder exists on the server, create it if it doesn't
+ssh -i student-admin_key -p ${PORT} -o StrictHostKeyChecking=no student-admin@${MACHINE} "echo 'SSH connection works'"
+echo "Checking if the project directory exists on the server..."
+ssh -i student-admin_key -p ${PORT} -o StrictHostKeyChecking=no student-admin@${MACHINE} "mkdir -p ${REMOTE_PROJECT_PATH}"
 
-# check that the code in installed and start up the product
- COMMAND="ssh -p ${PORT} -o StrictHostKeyChecking=no student-admin@${MACHINE}"
+# Step 11: Check if connection works with my_key
+ssh -i ${TMP_DIR}/my_key -p ${PORT} -o StrictHostKeyChecking=no student-admin@${MACHINE} "echo 'SSH connection works with my_key'"
 
- ${COMMAND} "ls CS553_example"
- ${COMMAND} "sudo apt install -qq -y python3-venv"
- ${COMMAND} "cd CS553_example && python3 -m venv venv"
- ${COMMAND} "cd CS553_example && source venv/bin/activate && pip install -r requirements.txt"
- ${COMMAND} "nohup CS553_example/venv/bin/python3 CS553_example/app.py > log.txt 2>&1 &"
+# Step 12: Clone the repository locally
+echo "Cloning the repository to local machine..."
+git clone ${REPO_URL}
 
- nohup ./whatever > /dev/null 2>&1 
+# Step 13: Copy the repository to the project folder on the server
+echo "Copying the project files to the server project directory..."
+scp -i student-admin_key -P ${PORT} -o StrictHostKeyChecking=no -r ${PROJECT_DIR} student-admin@${MACHINE}:${REMOTE_PROJECT_PATH}/
+ssh -i student-admin_key -p ${PORT} -o StrictHostKeyChecking=no student-admin@${MACHINE} "ls -al ${REMOTE_PROJECT_PATH}/${PROJECT_DIR} || echo 'Directory not found'"
 
- debugging ideas
- sudo apt-get install gh
- gh auth login
- requests.exceptions.HTTPError: 429 Client Error: Too Many Requests for url: https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta/v1/chat/completions
- log.txt
+# Final message
+echo "Deployment completed successfully!"
