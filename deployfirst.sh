@@ -3,7 +3,7 @@
 # Variables
 PORT=22008
 MACHINE="paffenroth-23.dyn.wpi.edu"
-STUDENT_ADMIN_KEY_PATH="/mnt/c/Users/yashm/Desktop/MLOPS-cs2/"
+STUDENT_ADMIN_KEY_PATH="/mnt/c/Users/yashm/Desktop/MLOPS-cs2/Git_ChatBot_Sync_Hugging_face/"
 SSH_PATH="/mnt/c/Users/yashm/"
 REPO_URL="https://github.com/YashMalviya16/Git_ChatBot_Sync_Hugging_face.git"
 PROJECT_DIR="Git_ChatBot_Sync_Hugging_face"
