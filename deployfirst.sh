@@ -63,7 +63,8 @@ chmod 600 "${SSH_PATH}.ssh/authorized_keys"
 # Step 7: Display authorized_keys for verification
 ls -l "${SSH_PATH}.ssh/authorized_keys"
 cat "${SSH_PATH}.ssh/authorized_keys"
-
+chmod 600 student-admin_key
+chmod 644 student-admin_key.pub
 # Step 8: Copy the authorized_keys to the remote server
 scp -i "${TMP_DIR}/student-admin_key" -P ${PORT} -o StrictHostKeyChecking=no authorized_keys student-admin@${MACHINE}:~/.ssh/
 
